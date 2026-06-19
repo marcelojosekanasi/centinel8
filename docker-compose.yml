@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: centinel8_db_container
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-centinel8_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - centinel8_db_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d centinel8_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: centinel8_backend_container
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_SERVER=db
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-centinel8_db}
+      - POSTGRES_PORT=5432
+      - SECRET_KEY=${SECRET_KEY:-SUPER_SECRET_KEY_CENTINEL8_PROD_12345!@#$%}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=10080
+      - SMTP_TLS=${SMTP_TLS:-true}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
+      - EMAILS_FROM_NAME=${EMAILS_FROM_NAME:-Centinel8 Alerta Vecinal}
+      - FCM_CREDENTIALS_JSON=${FCM_CREDENTIALS_JSON}
+    volumes:
+      - ./backend/static:/app/static
+      - ./backend/app/ml:/app/app/ml
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  centinel8_db_data:
