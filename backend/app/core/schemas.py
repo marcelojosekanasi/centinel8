@@ -182,3 +182,9 @@ class DashboardStats(BaseModel):
     incidentes_recientes: List[IncidenteResponse]
     predicciones_totales: int
 
+
+# --- Esquema de Dispositivo FCM (Push Notifications) ---
+
+class DispositivoFCMCreate(BaseModel):
+    token: str = Field(..., min_length=10)
+    plataforma: str = Field(default="android")

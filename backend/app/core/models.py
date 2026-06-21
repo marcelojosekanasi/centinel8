@@ -42,6 +42,7 @@ class Usuario(Base):
     notificaciones = relationship("Notificacion", back_populates="usuario")
     tokens_recuperacion = relationship("TokenRecuperacion", back_populates="usuario")
     auditorias = relationship("Auditoria", back_populates="usuario")
+    dispositivos_fcm = relationship("DispositivoFCM", back_populates="usuario")
 
 class Incidente(Base):
     __tablename__ = "incidentes"
@@ -143,3 +144,15 @@ class TokenRecuperacion(Base):
     utilizado = Column(Boolean, default=False)
     
     usuario = relationship("Usuario", back_populates="tokens_recuperacion")
+
+class DispositivoFCM(Base):
+    __tablename__ = "dispositivos_fcm"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False)
+    token = Column(String(255), unique=True, nullable=False, index=True)
+    plataforma = Column(String(20), nullable=False, default="android")  # android, ios
+    fecha_registro = Column(DateTime(timezone=True), server_default=func.now())
+    activo = Column(Boolean, default=True)
+
+    usuario = relationship("Usuario", back_populates="dispositivos_fcm")

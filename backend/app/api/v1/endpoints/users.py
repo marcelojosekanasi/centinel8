@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
@@ -26,7 +26,7 @@ def update_user_me(
         if db_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El correo electrÃ³nico ya estÃ¡ en uso."
+                detail="El correo electrónico ya está en uso."
             )
             
     updated_user = crud.update_user(db, db_user=current_user, user_in=user_in)
@@ -45,11 +45,11 @@ def change_password(
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Cambiar la contraseÃ±a desde la pantalla de perfil del vecino."""
+    """Cambiar la contraseña desde la pantalla de perfil del vecino."""
     if not verify_password(pwd_data.contrasena_actual, current_user.contrasena):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="La contraseÃ±a actual ingresada es incorrecta."
+            detail="La contraseña actual ingresada es incorrecta."
         )
         
     user_upd = schemas.UsuarioUpdate(contrasena=pwd_data.nueva_contrasena)
@@ -62,7 +62,36 @@ def change_password(
         tabla="usuarios", 
         registro_id=current_user.id
     )
-    return {"message": "ContraseÃ±a cambiada con Ã©xito."}
+    return {"message": "Contraseña cambiada con éxito."}
+
+@router.post("/me/device-token", status_code=status.HTTP_200_OK)
+def register_device_token(
+    device_data: schemas.DispositivoFCMCreate,
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Registrar o actualizar el token FCM de un dispositivo para notificaciones push."""
+    from app.core.models import DispositivoFCM
+
+    existing = db.query(DispositivoFCM).filter(
+        DispositivoFCM.token == device_data.token
+    ).first()
+
+    if existing:
+        existing.usuario_id = current_user.id
+        existing.plataforma = device_data.plataforma
+        existing.activo = True
+        db.commit()
+    else:
+        nuevo_dispositivo = DispositivoFCM(
+            usuario_id=current_user.id,
+            token=device_data.token,
+            plataforma=device_data.plataforma,
+        )
+        db.add(nuevo_dispositivo)
+        db.commit()
+
+    return {"message": "Token de dispositivo registrado correctamente."}
 
 # --- RUTAS DE ADMINISTRADOR ---
 
@@ -130,5 +159,5 @@ def delete_user_by_admin(
         tabla="usuarios",
         registro_id=user_id
     )
-    return {"message": "Usuario eliminado (bloqueado) con Ã©xito."}
+    return {"message": "Usuario eliminado (bloqueado) con éxito."}
 
