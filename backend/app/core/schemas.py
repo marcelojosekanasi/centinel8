@@ -23,6 +23,8 @@ class UsuarioUpdate(BaseModel):
     contrasena: Optional[str] = Field(None, min_length=6, max_length=100)
     estado: Optional[str] = None  # Activo, Inactivo
     rol_id: Optional[int] = None  # 1=Vecino, 2=Administrador, 3=Policia
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
 
 class RolResponse(BaseModel):
     id: int
@@ -38,6 +40,8 @@ class UsuarioResponse(UsuarioBase):
     fecha_registro: datetime
     estado: str
     rol: Optional[RolResponse] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
 
     class Config:
         from_attributes = True

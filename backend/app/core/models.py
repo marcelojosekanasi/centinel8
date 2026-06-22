@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Double, Boolean, DateTime, ForeignKey
+﻿from sqlalchemy import Column, Integer, String, Text, Double, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from geoalchemy2 import Geometry
@@ -36,6 +36,8 @@ class Usuario(Base):
     rol_id = Column(Integer, ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False)
     fecha_registro = Column(DateTime(timezone=True), server_default=func.now())
     estado = Column(String(20), default="Activo")  # Activo, Inactivo, Pendiente
+    latitud = Column(Double, nullable=True)
+    longitud = Column(Double, nullable=True)
     
     rol = relationship("Rol", back_populates="usuarios")
     incidentes = relationship("Incidente", back_populates="usuario")
