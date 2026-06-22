@@ -39,3 +39,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+
+# Credenciales Firebase Admin SDK
+backend/firebase-credentials.json

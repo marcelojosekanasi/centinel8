@@ -66,14 +66,24 @@ def send_push_notification(
             # Por simplicidad en la simulación, asumimos que se mandan mensajes a tópicos
             # o que en una implementación real consultaríamos los tokens del dispositivo.
             
-            # Ejemplo de envío por FCM:
+            from app.core.models import DispositivoFCM
+            dispositivos = db.query(DispositivoFCM).filter(
+                DispositivoFCM.usuario_id.in_(user_ids),
+                DispositivoFCM.activo == True
+            ).all()
+            tokens_reales = [d.token for d in dispositivos]
+
+            if not tokens_reales:
+                logger.info("No hay tokens FCM registrados para estos usuarios.")
+                return True
+
             message = messaging.MulticastMessage(
                 notification=messaging.Notification(
                     title=title,
                     body=body,
                 ),
                 data={k: str(v) for k, v in (data or {}).items()},
-                tokens=["MOCK_TOKEN_DEVICE_1", "MOCK_TOKEN_DEVICE_2"] # Reemplazar con tokens reales
+                tokens=tokens_reales
             )
             response = messaging.send_multicast(message)
             logger.info(f"FCM real enviado: {response.success_count} exitosos, {response.failure_count} fallidos.")
