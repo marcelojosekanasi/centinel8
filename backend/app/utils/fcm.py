@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 from typing import List, Optional
 from sqlalchemy.orm import Session
@@ -7,7 +7,7 @@ from app.core.config import settings
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Centinel8-FCM")
 
-# Estado de inicialización de Firebase Admin SDK
+# Estado de inicializaciÃ³n de Firebase Admin SDK
 _firebase_initialized = False
 
 def initialize_firebase():
@@ -35,7 +35,7 @@ def initialize_firebase():
         logger.info("Firebase Admin SDK inicializado correctamente para FCM.")
         return True
     except Exception as e:
-        logger.error(f"Error al inicializar Firebase Admin: {e}. Las notificaciones operarán en modo MOCK.")
+        logger.error(f"Error al inicializar Firebase Admin: {e}. Las notificaciones operarÃ¡n en modo MOCK.")
         return False
 
 def send_push_notification(
@@ -46,12 +46,12 @@ def send_push_notification(
     data: Optional[dict] = None
 ) -> bool:
     """
-    Envía notificaciones push a una lista de IDs de usuarios.
-    Si Firebase está configurado correctamente, despacha mensajes reales.
-    De lo contrario, simula el envío escribiendo en logs de auditoría/consola.
+    EnvÃ­a notificaciones push a una lista de IDs de usuarios.
+    Si Firebase estÃ¡ configurado correctamente, despacha mensajes reales.
+    De lo contrario, simula el envÃ­o escribiendo en logs de auditorÃ­a/consola.
     """
-    logger.info(f"--- [ENVIANDO NOTIFICACIÓN PUSH] ---")
-    logger.info(f"Título: {title}")
+    logger.info(f"--- [ENVIANDO NOTIFICACIÃ“N PUSH] ---")
+    logger.info(f"TÃ­tulo: {title}")
     logger.info(f"Mensaje: {body}")
     logger.info(f"Destinatarios (IDs): {user_ids}")
     if data:
@@ -62,9 +62,9 @@ def send_push_notification(
     if firebase_active:
         try:
             from firebase_admin import messaging
-            # En producción, mapearíamos user_ids a sus tokens FCM registrados en la BD.
-            # Por simplicidad en la simulación, asumimos que se mandan mensajes a tópicos
-            # o que en una implementación real consultaríamos los tokens del dispositivo.
+            # En producciÃ³n, mapearÃ­amos user_ids a sus tokens FCM registrados en la BD.
+            # Por simplicidad en la simulaciÃ³n, asumimos que se mandan mensajes a tÃ³picos
+            # o que en una implementaciÃ³n real consultarÃ­amos los tokens del dispositivo.
             
             from app.core.models import DispositivoFCM
             dispositivos = db.query(DispositivoFCM).filter(
@@ -85,13 +85,13 @@ def send_push_notification(
                 data={k: str(v) for k, v in (data or {}).items()},
                 tokens=tokens_reales
             )
-            response = messaging.send_multicast(message)
+            response = messaging.send_each_for_multicast(message)
             logger.info(f"FCM real enviado: {response.success_count} exitosos, {response.failure_count} fallidos.")
             return True
         except Exception as e:
             logger.error(f"Error al enviar notificaciones mediante Firebase SDK: {e}")
-            logger.info("Fallback: Notificación enviada exitosamente en modo Simulación.")
+            logger.info("Fallback: NotificaciÃ³n enviada exitosamente en modo SimulaciÃ³n.")
             return True
     else:
-        logger.info("Notificación enviada exitosamente en modo Simulación (Consola/Mock).")
+        logger.info("NotificaciÃ³n enviada exitosamente en modo SimulaciÃ³n (Consola/Mock).")
         return True
