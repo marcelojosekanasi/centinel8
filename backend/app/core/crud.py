@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+﻿from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, desc
 from datetime import datetime, timedelta
 from typing import List, Optional
@@ -13,7 +13,7 @@ from app.core.security import get_password_hash
 def get_roles(db: Session) -> List[Rol]:
     return db.query(Rol).all()
 
-# --- CRUD de Categorías ---
+# --- CRUD de CategorÃ­as ---
 def get_categorias(db: Session) -> List[Categoria]:
     return db.query(Categoria).all()
 
@@ -34,8 +34,19 @@ def get_user_by_email(db: Session, email: str) -> Optional[Usuario]:
 def get_user_by_ci(db: Session, ci: str) -> Optional[Usuario]:
     return db.query(Usuario).filter(Usuario.ci == ci).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[Usuario]:
-    return db.query(Usuario).offset(skip).limit(limit).all()
+def get_users(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    rol_id: Optional[int] = None,
+    estado: Optional[str] = None
+) -> List[Usuario]:
+    query = db.query(Usuario)
+    if rol_id is not None:
+        query = query.filter(Usuario.rol_id == rol_id)
+    if estado is not None:
+        query = query.filter(Usuario.estado == estado)
+    return query.offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: UsuarioCreate) -> Usuario:
     hashed_password = get_password_hash(user.contrasena)
@@ -96,7 +107,7 @@ def get_incidents(
     return query.order_by(desc(Incidente.fecha_reporte)).offset(skip).limit(limit).all()
 
 def create_incident(db: Session, incident: IncidenteCreate, usuario_id: int) -> Incidente:
-    # Crear la ubicación en formato PostGIS usando ST_SetSRID y ST_MakePoint
+    # Crear la ubicaciÃ³n en formato PostGIS usando ST_SetSRID y ST_MakePoint
     geom = func.ST_SetSRID(func.ST_MakePoint(incident.longitud, incident.latitud), 4326)
     
     db_incident = Incidente(
@@ -130,7 +141,7 @@ def update_incident(
         
     db.add(db_incident)
     
-    # Registrar en el historial si cambió el estado
+    # Registrar en el historial si cambiÃ³ el estado
     if "estado" in update_data and update_data["estado"] != estado_anterior:
         db_historial = HistorialIncidente(
             incidente_id=db_incident.id,
@@ -215,7 +226,7 @@ def create_prediccion(
     db.refresh(db_pred)
     return db_pred
 
-# --- Registro de Auditoría ---
+# --- Registro de AuditorÃ­a ---
 def log_audit(
     db: Session, 
     usuario_id: Optional[int], 
@@ -235,9 +246,9 @@ def log_audit(
     db.commit()
     return db_audit
 
-# --- Tokens de Recuperación ---
+# --- Tokens de RecuperaciÃ³n ---
 def create_recovery_token(db: Session, usuario_id: int, token: str) -> TokenRecuperacion:
-    # Expiración en 2 horas
+    # ExpiraciÃ³n en 2 horas
     expiracion = datetime.now() + timedelta(hours=2)
     db_token = TokenRecuperacion(
         usuario_id=usuario_id,

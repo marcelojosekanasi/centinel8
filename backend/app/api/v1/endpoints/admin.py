@@ -27,10 +27,11 @@ def delete_user(user_id: int, current_admin: Usuario = Depends(get_current_admin
     user = crud.get_user(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado.")
-    db.delete(user)
+    user.estado = "Eliminado"
+    db.add(user)
     db.commit()
-    crud.log_audit(db, usuario_id=current_admin.id, accion=f"ELIMINAR_USUARIO (id:{user_id})", tabla="usuarios", registro_id=user_id)
-    return {"message": "Usuario eliminado correctamente."}
+    crud.log_audit(db, usuario_id=current_admin.id, accion=f"ELIMINAR_USUARIO_SOFT (id:{user_id})", tabla="usuarios", registro_id=user_id)
+    return {"message": "Usuario eliminado (bloqueado) correctamente."}
 
 @router.patch("/users/{user_id}/status", response_model=schemas.UsuarioResponse)
 def toggle_user_status(user_id: int, current_admin: Usuario = Depends(get_current_admin), db: Session = Depends(get_db)):
