@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centinel-D8 · Emitir alerta</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <main class="pantalla">
+    <header class="encabezado">
+      <h1>Emitir alerta</h1>
+      <p>Distrito 8 · El Alto</p>
+    </header>
+
+    <form id="formAlerta" novalidate>
+      <fieldset>
+        <legend>Tipo de alerta</legend>
+        <div class="opciones" id="opciones">
+          <button type="button" data-tipo="Robo a domicilio" aria-pressed="false">Robo a domicilio</button>
+          <button type="button" data-tipo="Robo a transeúntes" aria-pressed="false">Robo a transeúntes</button>
+          <button type="button" data-tipo="Consumo de alcohol o drogas en vía pública" aria-pressed="false">Consumo en vía pública</button>
+          <button type="button" data-tipo="Violencia intrafamiliar" aria-pressed="false">Violencia intrafamiliar</button>
+          <button type="button" data-tipo="Agresión o pelea" aria-pressed="false">Agresión o pelea</button>
+          <button type="button" data-tipo="Otro" aria-pressed="false">Otro</button>
+        </div>
+        <p class="error" id="errorTipo" hidden>Selecciona un tipo de alerta.</p>
+      </fieldset>
+
+      <label for="descripcion">
+        Descripción breve <span id="contador">0/200</span>
+      </label>
+      <textarea id="descripcion" maxlength="200" rows="4" placeholder="Qué ocurre, dónde y desde cuándo"></textarea>
+
+      <fieldset>
+        <legend>Ubicación</legend>
+        <button type="button" id="btnUbicacion" class="secundario">Usar mi ubicación actual</button>
+        <p id="estadoUbicacion" class="ayuda">Sin ubicación seleccionada.</p>
+      </fieldset>
+
+      <label class="check">
+        <input type="checkbox" id="anonima">
+        Enviar de forma anónima
+      </label>
+
+      <button type="submit" class="principal">Enviar alerta</button>
+      <p id="mensaje" role="status" hidden></p>
+    </form>
+
+    <nav class="navegacion" aria-label="Navegación principal">
+      <span>Inicio</span>
+      <span>Mapa</span>
+      <span class="activo">Alertar</span>
+      <span>Perfil</span>
+    </nav>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
